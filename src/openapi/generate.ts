@@ -1,4 +1,4 @@
-import {Project, PropertySignatureStructure} from 'ts-simple-ast'
+import {Project, PropertySignatureStructure, StructureKind} from 'ts-morph'
 
 import {ensureFile, filePath, Imports} from '../generate/util'
 import {API, Definition, GroupVersionKind, resolve, Value} from './'
@@ -26,10 +26,13 @@ export default function generate(proj: Project, api: API) {
         docs: def.description ? [{description: def.description}] : [],
       })
     } else {
+      let Properties = properties(proj, api, def, fileImports);
+      // console.log(name);
       file.addInterface({
         name,
         isExported: true,
-        properties: properties(proj, api, def, fileImports),
+        // type: name,
+        properties: Properties,
         docs: def.description ? [{description: def.description}] : [],
       })
     }
@@ -74,6 +77,7 @@ export function properties(
   return Object.keys(props).map(name => {
     let prop = props[name]
     return {
+      kind: StructureKind.PropertySignature,
       name,
       type: kindType(gvk, name) || type(proj, api, imports, prop),
       docs: prop.description ? [prop.description] : [],

@@ -2,7 +2,7 @@
   "name": "kubernetes-type-generator",
   "version": "0.1.0",
   "description": "Generate TypeScript definitions of Kubernetes resource types",
-  "main": "lib/generate/index.js",
+  "main": "src/generate/index.ts",
   "repository": "https://github.com/silverlyra/kubernetes-types",
   "author": "Lyra Naeseth <lyra@naeseth.com>",
   "license": "Apache-2.0",
@@ -11,7 +11,7 @@
     "argparse": "^1.0.10",
     "mkdirp": "^0.5.1",
     "node-fetch": "^2.3.0",
-    "ts-simple-ast": "^20.0.0"
+    "ts-morph": "^15.1.0"
   },
   "devDependencies": {
     "@types/argparse": "^1.0.35",

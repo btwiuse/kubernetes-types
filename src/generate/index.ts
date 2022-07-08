@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node
+
 /**
  * kubernetes-types-generator
  *
@@ -9,7 +11,7 @@ import {readFileSync, writeFileSync} from 'fs'
 import {sync as mkdirpSync} from 'mkdirp'
 import fetch from 'node-fetch'
 import * as path from 'path'
-import Project, {ScriptTarget} from 'ts-simple-ast'
+import {Project, ScriptTarget} from 'ts-morph'
 
 import pkg from '../../package.json'
 import {API} from '../openapi'
@@ -29,10 +31,14 @@ async function main({api: apiVersion, file, patch, beta}: Arguments) {
 
   let api: API = file ? JSON.parse(readFileSync(file, 'utf8')) : await fetchAPI(apiVersion)
 
+  console.log(api)
+
   let proj = new Project({
-    compilerOptions: {target: ScriptTarget.ES2016},
-    useVirtualFileSystem: true,
-  })
+    compilerOptions: {
+      target: ScriptTarget.ESNext,
+    },
+    // useVirtualFileSystem: true,
+  });
 
   generate(proj, api)
   let result = proj.emitToMemory({emitOnlyDtsFiles: true})
@@ -49,6 +55,7 @@ async function main({api: apiVersion, file, patch, beta}: Arguments) {
 
   let generatedPackage = JSON.parse(readFileSync(path.join(assetsPath, 'package.json'), 'utf8'))
   generatedPackage.version = version
+  mkdirpSync(destPath)
   writeFileSync(
     path.join(destPath, 'package.json'),
     JSON.stringify(generatedPackage, null, 2),

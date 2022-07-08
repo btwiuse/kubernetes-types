@@ -1,2 +1,1 @@
-#!/usr/bin/env node
-require('kubernetes-types-generator/lib/generate')
+../src/generate/index.ts
