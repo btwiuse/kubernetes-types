@@ -1,0 +1,9 @@
+OUT=types/vmaster.undefined.0
+
+[[ -d $OUT ]] && rm -r $OUT
+
+yarn ts-node ./src/generate/index.ts
+
+grep -r $OUT -e 'export interface ' | cut -d : -f 2 | while read a b c d; do echo "s,export interface $c {,export type $c = {,g"; done > /tmp/sed
+
+find $OUT -type f | xargs -L1 sed -f /tmp/sed -i
