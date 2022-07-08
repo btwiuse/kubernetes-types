@@ -7,7 +7,7 @@
  */
 
 import {ArgumentParser} from 'argparse'
-import {readFileSync, writeFileSync} from 'fs'
+import {mkdirSync, readFileSync, writeFileSync} from 'fs'
 import {sync as mkdirpSync} from 'mkdirp'
 import fetch from 'node-fetch'
 import * as path from 'path'
@@ -28,10 +28,8 @@ interface Arguments {
 
 async function main({api: apiVersion, file, patch, beta}: Arguments) {
   apiVersion = normalizeVersion(apiVersion)
-
+  console.log(apiVersion)
   let api: API = file ? JSON.parse(readFileSync(file, 'utf8')) : await fetchAPI(apiVersion)
-
-  console.log(api)
 
   let proj = new Project({
     compilerOptions: {
@@ -43,10 +41,14 @@ async function main({api: apiVersion, file, patch, beta}: Arguments) {
   generate(proj, api)
   let result = proj.emitToMemory({emitOnlyDtsFiles: true})
   let files = result.getFiles()
+  console.log(files.length)
 
   const version = releaseVersion(apiVersion, {patch, beta})
   const destPath = path.normalize(path.join(__dirname, '..', '..', 'types', `v${version}`))
+  mkdirSync(destPath, {recursive: true});
+  console.log(destPath);
   for (let {filePath, text} of files) {
+    console.log(filePath)
     let destFilePath = path.join(destPath, filePath.replace(/^\//, ''))
     mkdirpSync(path.dirname(destFilePath))
     writeFileSync(destFilePath, text, 'utf8')
@@ -55,7 +57,6 @@ async function main({api: apiVersion, file, patch, beta}: Arguments) {
 
   let generatedPackage = JSON.parse(readFileSync(path.join(assetsPath, 'package.json'), 'utf8'))
   generatedPackage.version = version
-  mkdirpSync(destPath)
   writeFileSync(
     path.join(destPath, 'package.json'),
     JSON.stringify(generatedPackage, null, 2),
